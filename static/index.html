@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" href="css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css">
+	<link rel="stylesheet" href="css/main.css">
+	<title>FuelUp</title>
+</head>
+<body>
+	<div id="app">
+		<nav class="navbar navbar-expand-lg navbar-light bg-light">
+			<div class="container">
+				<a class="navbar-brand h1" href="#">
+					<img src="img/navbar-logo-fuelup.svg" alt="logo">
+				</a>
+				<div class="collapse navbar-collapse" id="navbarNavAltMarkup">
+					<div class="navbar-nav">
+						<router-link class="nav-link" to="/">Главная</router-link>
+						<router-link class="nav-link" to="/station">АЗС</router-link>
+						<router-link class="nav-link" to="/price">Цены</router-link>
+					</div>
+				</div>
+			</div>
+		</nav>
+		<div class="container">
+			<router-view></router-view>
+		</div>
+	</div>
+
+	<template id="main">
+		<div class="row">
+			<div class="col-6">
+				<h1 class="main__header">Приложение для заправки автомобиля на АЗС</h1>
+			</div>
+			<div class="col-6">
+				<img src="img/app_fu.webp">
+			</div>
+		</div>
+	</template>
+
+	<template id="station">
+		<div class="mt-5">
+			<h1>АЗС</h1>
+
+			<ul class="nav nav-tabs mb-3">
+				<li class="nav-item">
+					<router-link class="nav-link" :class="{'active': hash === 'list'}" to="#list">Список</router-link>
+				</li>
+				<li class="nav-item">
+					<router-link class="nav-link" :class="{'active': hash === 'map'}" to="#map">На карте</router-link>
+				</li>
+			</ul>
+			<div v-if="hash === 'list'">
+				<input class="form-control mb-3" placeholder="Поиск по имени" type="text" v-model="search">
+
+				<table v-if="stations.filtered.length > 0" class="table table-bordered">
+					<tr>
+						<td v-for="caption in captions">{{ caption }}</td>
+					</tr>
+					<tr v-for="station in stations.filtered">
+						<td>{{ station.Name }}</td>
+						<td>{{ getStationAddress(station.Address) }}</td>
+						<td>{{ getStatusStation(station.Enable) }}</td>
+						<td>
+							<i class="far fa-credit-card" :class="getStatusPostPay(station.PostPay)"></i>
+						</td>
+					</tr>
+				</table>
+				<div v-else>Результат поиска отсутствует</div>
+			</div>
+
+			<div v-if="hash === 'map'" >
+				<yandex-map style="width: 100%; height: 500px"  :coords="map.defaultPosition" zoom="9">
+					<ymap-marker 
+						v-for="station in stations.default"
+						:coords="[station.Location.Lat, station.Location.Lon]"
+					/>
+				</yandex-map>
+			</div>
+		</div>
+	</template>
+
+	<template id="price">
+		<div class="mt-5">
+			<h1>Цены</h1>
+
+			<table class="table table-bordered">
+				<tr>
+					<td v-for="caption in captions">{{ caption }}</td>
+				</tr>
+				<tr v-for="price in prices">
+					<td>
+						<i class="fas fa-gas-pump mr-1" :style="`color: ${getProductType(price.ProductId).status}`"></i>
+						{{ getProductType(price.ProductId).type }}
+					</td>
+					<td>
+						{{ price.Price }}
+						<i class="fas fa-ruble-sign"></i>
+					</td>
+				</tr>
+			</table>
+		</div>
+	</template>
+
+	<script src="js/vue.min.js"></script>
+	<script src="https://unpkg.com/vue-yandex-maps@0.10.9/dist/vue-yandex-maps.min.js"></script>
+	<script src="js/vue-router.min.js"></script>
+	<script src="js/main.js"></script>
+</body>
+</html>
